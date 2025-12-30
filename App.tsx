@@ -7,7 +7,7 @@ import { ExamPaperView } from './components/ExamPaperView';
 
 const App: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
-  const [grade, setGrade] = useState<Grade>(Grade.Primary5);
+  const [grade, setGrade] = useState<Grade>(Grade.Primary5_1);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState('');
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -38,7 +38,7 @@ const App: React.FC = () => {
         allImages = [...allImages, ...imgs];
       }
 
-      setProgress('AI 正在基于苏教版大纲分析知识点并生成试卷...');
+      setProgress('AI 正在基于苏教版（分学期）大纲分析知识点...');
       const response = await analyzeAndGenerate(allImages, grade);
       setResult(response);
     } catch (err: any) {
@@ -64,7 +64,7 @@ const App: React.FC = () => {
           SmartExam <span className="text-indigo-600">Builder AI</span>
         </h1>
         <p className="text-slate-600 text-lg">
-          专注 <span className="text-indigo-600 font-semibold">江苏苏教版数学</span>，智能查缺补漏
+          精细化 <span className="text-indigo-600 font-semibold">苏教版数学大纲</span> 匹配，智能生成学期试卷
         </p>
       </header>
 
@@ -75,7 +75,7 @@ const App: React.FC = () => {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">
-                  1. 上传题目 PDF
+                  1. 上传已练习题目 PDF
                 </label>
                 <div 
                   className={`relative border-2 border-dashed rounded-xl p-8 transition-colors text-center ${
@@ -116,7 +116,7 @@ const App: React.FC = () => {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">
-                  2. 选择目标年级 (苏教版)
+                  2. 选择目标学期 (苏教版)
                 </label>
                 <select
                   value={grade}
@@ -127,7 +127,7 @@ const App: React.FC = () => {
                     <option key={g} value={g}>{g}</option>
                   ))}
                 </select>
-                <p className="mt-2 text-xs text-slate-400">目前仅支持小学及初中苏教版数学大纲分析</p>
+                <p className="mt-2 text-xs text-slate-400">我们将根据所选学期的大纲进行查缺补漏</p>
               </div>
 
               <div className="pt-4">
@@ -148,7 +148,7 @@ const App: React.FC = () => {
                       </svg>
                       {progress}
                     </span>
-                  ) : '开始智能生成'}
+                  ) : '开始智能分析与生成'}
                 </button>
               </div>
             </div>
@@ -165,19 +165,21 @@ const App: React.FC = () => {
           {/* Analysis Result Header */}
           <div className="bg-white rounded-2xl shadow-md p-8 mb-8 border border-slate-200 no-print">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">苏教版知识点覆盖分析</h2>
+              <h2 className="text-2xl font-bold text-slate-800">
+                <span className="text-indigo-600">{grade}</span> 知识点分析
+              </h2>
               <button 
                 onClick={reset}
-                className="text-slate-500 hover:text-indigo-600 transition-colors text-sm font-medium"
+                className="text-slate-500 hover:text-indigo-600 transition-colors text-sm font-medium border border-slate-200 px-4 py-1 rounded-md"
               >
-                重新选择文件
+                返回重新上传
               </button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="p-5 bg-emerald-50 rounded-xl border border-emerald-100">
                 <h3 className="text-emerald-800 font-bold mb-3 flex items-center gap-2">
-                  <span className="text-xl">✅</span> 样卷已涵盖
+                  <span className="text-xl">✅</span> 已练习/涵盖内容
                 </h3>
                 <ul className="space-y-1">
                   {result.analysis.coveredPoints.map((p, i) => (
@@ -190,7 +192,7 @@ const App: React.FC = () => {
 
               <div className="p-5 bg-amber-50 rounded-xl border border-amber-100">
                 <h3 className="text-amber-800 font-bold mb-3 flex items-center gap-2">
-                  <span className="text-xl">🎯</span> 大纲遗漏/需强化
+                  <span className="text-xl">🎯</span> 该学期大纲遗漏/待强化
                 </h3>
                 <ul className="space-y-1">
                   {result.analysis.missingPoints.map((p, i) => (
@@ -203,7 +205,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100 italic text-slate-600 text-sm leading-relaxed">
-              <span className="font-bold text-slate-700 not-italic">针对性建议：</span>
+              <span className="font-bold text-slate-700 not-italic">针对该学段的建议：</span>
               {result.analysis.summary}
             </div>
           </div>
@@ -211,10 +213,10 @@ const App: React.FC = () => {
           <div className="flex justify-end gap-4 mb-6 no-print">
             <button 
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-6 py-2 bg-slate-800 text-white rounded-lg font-semibold hover:bg-slate-900 transition-all shadow-md"
+              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-              导出/打印新试卷
+              打印/导出定制试卷
             </button>
           </div>
 
@@ -223,7 +225,7 @@ const App: React.FC = () => {
       )}
 
       <footer className="mt-20 py-8 border-t border-slate-200 text-center text-slate-400 text-sm no-print">
-        &copy; 2024 SmartExam Builder AI. 基于苏教版数学大纲与 Gemini 3 Pro 驱动。
+        &copy; 2024 SmartExam Builder AI. 专注苏教版数学分学段智能提优。
       </footer>
     </div>
   );

@@ -80,15 +80,14 @@ export async function analyzeAndGenerate(
   images: string[],
   grade: Grade
 ): Promise<AnalysisResult> {
-  // Use gemini-3-pro-preview for complex reasoning and syllabus comparison
   const model = "gemini-3-pro-preview";
   
   const prompt = `
     你是一个精通中国教育大纲的专家。请执行以下任务：
     1. 识别并分析上传图片中的数学题目，提取其涵盖的知识点。
-    2. 对比 **中国江苏苏教版 (JSJY) 数学大纲** 中关于 "${grade}" 的要求，找出这些题目所遗漏的关键知识点。
-    3. 整理一份知识点覆盖与遗漏的分析汇总。
-    4. 参考上传题目的语言风格和难度，整理一套全新的 "${grade}" 数学试卷。
+    2. 对比 **中国江苏苏教版 (JSJY) 数学大纲** 中关于 "${grade}" 的具体要求（请注意区分上学期或下学期），找出这些上传题目所遗漏的关键知识点。
+    3. 整理一份详细的知识点覆盖与遗漏分析汇总。
+    4. 参考上传题目的语言风格和难度，整理一套全新的适合 "${grade}" 学生的数学试卷。
     
     试卷结构要求（严格遵守）：
     - 5道选择题（每题4分，共20分）
@@ -97,8 +96,8 @@ export async function analyzeAndGenerate(
     - 总分100分。
     
     生成要求：
-    - 新试卷必须优先包含上述分析中发现的“遗漏知识点”。
-    - 题目必须符合苏教版数学教材的逻辑与出题习惯。
+    - 新试卷必须优先包含上述分析中发现的针对该学期的“遗漏知识点”。
+    - 题目难度和知识点分布必须符合苏教版数学教材该学段的逻辑。
     - 确保所有题目都有详细的答案和解析。
     
     请以JSON格式返回结果。

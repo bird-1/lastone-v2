@@ -1,0 +1,7 @@
+{
+  "name": "SmartExam Builder AI",
+  "description": "An intelligent exam generation tool that analyzes uploaded PDF question banks, identifies missing knowledge points based on grade standards, and creates customized new exam papers with precise structures.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

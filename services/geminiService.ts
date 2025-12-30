@@ -10,9 +10,20 @@ const ANALYSIS_SCHEMA = {
     analysis: {
       type: Type.OBJECT,
       properties: {
-        coveredPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
-        missingPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
-        summary: { type: Type.STRING }
+        coveredPoints: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING },
+          description: "从上传PDF中识别出的已练习知识点"
+        },
+        missingPoints: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING },
+          description: "对比苏教版大纲后发现该学生该学期尚未覆盖或需要强化的核心知识点"
+        },
+        summary: { 
+          type: Type.STRING,
+          description: "对学生当前掌握情况的专业评价与学习建议"
+        }
       },
       required: ["coveredPoints", "missingPoints", "summary"]
     },
@@ -80,27 +91,26 @@ export async function analyzeAndGenerate(
   images: string[],
   grade: Grade
 ): Promise<AnalysisResult> {
+  // We use gemini-3-pro-preview for high-accuracy syllabus matching
   const model = "gemini-3-pro-preview";
   
   const prompt = `
-    你是一个精通中国教育大纲的专家。请执行以下任务：
-    1. 识别并分析上传图片中的数学题目，提取其涵盖的知识点。
-    2. 对比 **中国江苏苏教版 (JSJY) 数学大纲** 中关于 "${grade}" 的具体要求（请注意区分上学期或下学期），找出这些上传题目所遗漏的关键知识点。
-    3. 整理一份详细的知识点覆盖与遗漏分析汇总。
-    4. 参考上传题目的语言风格和难度，整理一套全新的适合 "${grade}" 学生的数学试卷。
+    你是一个深耕江苏教育的数学特级教师，对 **中国江苏苏教版 (JSJY) 数学大纲** 有极其深刻的理解。
     
-    试卷结构要求（严格遵守）：
-    - 5道选择题（每题4分，共20分）
-    - 5道填空题（每题4分，共20分）
-    - 6道应用题（每题10分，共60分）
-    - 总分100分。
+    请根据上传的题目图片（可能来自多个PDF）执行以下任务：
     
-    生成要求：
-    - 新试卷必须优先包含上述分析中发现的针对该学期的“遗漏知识点”。
-    - 题目难度和知识点分布必须符合苏教版数学教材该学段的逻辑。
-    - 确保所有题目都有详细的答案和解析。
+    1. **知识点透视**：识别图中所有数学题目，归纳它们在苏教版大纲中对应的具体知识点。
+    2. **大纲比对分析**：
+       - 参考苏教版数学大纲中关于 "${grade}" 的官方要求。
+       - 对比上传题目所涵盖的内容。
+       - 找出该学生在 "${grade}" 这一特定学期中，根据大纲要求目前表现出“遗漏”或“练习不足”的核心知识模块。
+    3. **生成查缺补漏卷**：
+       - 基于发现的“遗漏知识点”，设计一套全新的 "${grade}" 提优试卷。
+       - 试卷结构：5道选择题(20分)、5道填空题(20分)、6道应用题(60分)。
+       - 题目风格必须贴近江苏省（如南京、苏州、无锡等市）的期末真题难度。
+       - 确保包含详尽的解析，引导学生理解苏教版的典型解题思路。
     
-    请以JSON格式返回结果。
+    输出必须为严格的JSON格式。
   `;
 
   const parts = [
@@ -123,5 +133,6 @@ export async function analyzeAndGenerate(
     }
   });
 
-  return JSON.parse(response.text || '{}') as AnalysisResult;
+  if (!response.text) throw new Error("AI未能生成有效反馈");
+  return JSON.parse(response.text) as AnalysisResult;
 }

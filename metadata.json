@@ -1,7 +1,5 @@
 {
-  "name": "SmartExam Builder AI",
-  "description": "An intelligent exam generation tool that analyzes uploaded PDF question banks, identifies missing knowledge points based on grade standards, and creates customized new exam papers with precise structures.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "name": "SmartExam Builder AI - 江苏苏教版数学专版",
+  "description": "基于江苏苏教版数学大纲的智能查缺补漏工具。分析PDF题目，识别大纲遗漏知识点，并生成针对性强化练习卷。",
+  "requestFramePermissions": []
 }
